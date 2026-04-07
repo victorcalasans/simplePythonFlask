@@ -1,7 +1,9 @@
 pipeline {
     agent any
     environment {
+
         IMAGE_TAG = "0.${BUILD_ID}"
+
     }
     stages {
         stage('Build') {
@@ -15,6 +17,6 @@ pipeline {
 
             }
           }
+         }
         }
     }
-}

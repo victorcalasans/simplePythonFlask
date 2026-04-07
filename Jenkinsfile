@@ -19,5 +19,17 @@ pipeline {
              }
            }
          }
+        post {
+            success {
+                echo "Pipeline executada com sucesso!"
+            }
+            failure {
+                echo "Pipeline falhou!"
+                
+                }
+            cleanup {
+                sh "docker stop simple-python-flask-${IMAGE_TAG}"
+            }
+        }
      }
     

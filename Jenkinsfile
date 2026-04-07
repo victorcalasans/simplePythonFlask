@@ -27,9 +27,6 @@ pipeline {
                 echo "Pipeline falhou!"
                 
                 }
-            cleanup {
-                sh "docker stop simple-python-flask-${IMAGE_TAG}"
-            }
-        }
+ 
      }
     

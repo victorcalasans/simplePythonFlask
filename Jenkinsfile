@@ -14,7 +14,7 @@ pipeline {
                 sh "docker exec -ti simple-python-flask:${IMAGE_TAG} nosetests --with-xunit --with-coverage --cover-package=project test_users.py"
 
             }
-         }
+          }
         }
     }
 }

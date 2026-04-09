@@ -1,35 +1,51 @@
-pipeline {
-    agent any
+podTemplate(
+    containers: [
+        containerTemplate(
+            name: 'docker',
+            image: 'docker:24.0',
+            command: 'sleep',
+            args: '99d',
+            privileged: true
+        )
+    ],
+    volumes: [
+        hostPathVolume(
+            hostPath: '/var/run/docker.sock',
+            mountPath: '/var/run/docker.sock'
+        )
+    ]
+) {
 
-    environment {
-        IMAGE_TAG = "0.${env.BUILD_ID}"
-    }
+    node(POD_LABEL) {
 
-    stages {
+        try {
 
-        stage('Build') {
-            steps {
-                sh "docker build -t simple-python-flask:${IMAGE_TAG} ."
+            env.IMAGE_TAG = "0.${env.BUILD_ID}"
+
+            container('docker') {
+
+                stage('Checkout') {
+                    git 'http://192.168.88.20:3000/victor/simplePythonFlask.git'
+                }
+
+                stage('Build') {
+                    sh "docker build -t simple-python-flask:${env.IMAGE_TAG} ."
+                }
+
+                stage('Test') {
+                    sh """
+                    docker run --rm simple-python-flask:${env.IMAGE_TAG} \
+                    nosetests --with-xunit --with-coverage \
+                    --cover-package=project test_users.py
+                    """
+                }
             }
-        }
 
-        stage('Test') {
-            steps {
-                sh """
-                docker run --rm simple-python-flask:${IMAGE_TAG} \
-                nosetests --with-xunit --with-coverage \
-                --cover-package=project test_users.py
-                """
-            }
-        }
-    }
-
-    post {
-        success {
             echo "Pipeline executada com sucesso!"
-        }
-        failure {
+
+        } catch (err) {
             echo "Pipeline falhou!"
+            throw err
         }
     }
 }

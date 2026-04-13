@@ -43,7 +43,7 @@ podTemplate(
 
                 stage('Push Image') {
                     withCredentials([usernamePassword(
-                        credentialsId: 'b9149541-0be1-4e1d-8ae5-a11bb56ea106',
+                        credentialsId: 'jenkins_docker',
                         usernameVariable: 'REG_USER',
                         passwordVariable: 'REG_PASS'
                     )]) {

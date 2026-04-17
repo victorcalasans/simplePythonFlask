@@ -6,29 +6,29 @@ podTemplate(
             command: 'sleep',
             args: '99d',
             privileged: true
+        ),
+        containerTemplate(
+            name: 'openjdk',
+            image: 'openjdk:11',
+            command: 'sleep',
+            args: '99d',
+            privileged: true
         )
     ],
     volumes: [
         hostPathVolume(
             hostPath: '/var/run/docker.sock',
             mountPath: '/var/run/docker.sock'
-        ),
-       containerTemplate(
-        name: 'openjdk',
-        image: 'openjdk:11',
-        command: 'sleep',
-        args: '99d',
-        privileged: true
-    )
+        )
     ]
 ) {
     node(POD_LABEL) {
 
         env.IMAGE_TAG = "0.${env.BUILD_ID}"
 
-        container('docker') {
+        try {
 
-            try {
+            container('docker') {
 
                 stage('Checkout') {
                     git 'http://192.168.88.20:3000/victor/simplePythonFlask.git'
@@ -45,19 +45,31 @@ podTemplate(
                     --cover-package=project test_users.py
                     """
 
-                    sh "docker tag simple-python-flask:${env.IMAGE_TAG} 192.168.88.20:8082/simple-python-flask:${env.IMAGE_TAG}"
+                    sh """
+                    docker tag simple-python-flask:${env.IMAGE_TAG} \
+                    192.168.88.20:8082/simple-python-flask:${env.IMAGE_TAG}
+                    """
                 }
-            container('openjdk') {
-                stage('SonarQube Analysis') 
-                  script {
-                    def sonarScannerPath = tool 'SonarScanner'
-                    withSonarQubeEnv('SonarQube') {
-                        sh "${sonarScannerPath}/bin/sonar-scanner -Dsonar.projectKey=courseCatalog -Dsonar.sources=. \"                       
-
-
-
-                  }
             }
+
+            container('openjdk') {
+
+                stage('SonarQube Analysis') {
+                    script {
+                        def sonarScannerPath = tool 'SonarScanner'
+
+                        withSonarQubeEnv('SonarQube') {
+                            sh """
+                            ${sonarScannerPath}/bin/sonar-scanner \
+                            -Dsonar.projectKey=courseCatalog \
+                            -Dsonar.sources=.
+                            """
+                        }
+                    }
+                }
+            }
+
+            container('docker') {
 
                 stage('Push Image') {
                     withCredentials([usernamePassword(
@@ -71,13 +83,13 @@ podTemplate(
                         """
                     }
                 }
-
-                echo "Pipeline executada com sucesso!"
-
-            } catch (err) {
-                echo "Pipeline falhou!"
-                throw err
             }
+
+            echo "Pipeline executada com sucesso!"
+
+        } catch (err) {
+            echo "Pipeline falhou!"
+            throw err
         }
     }
 }

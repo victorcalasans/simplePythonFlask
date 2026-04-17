@@ -12,8 +12,8 @@ podTemplate(
         hostPathVolume(
             hostPath: '/var/run/docker.sock',
             mountPath: '/var/run/docker.sock'
-        )
-    containerTemplate(
+        ),
+       containerTemplate(
         name: 'openjdk',
         image: 'openjdk:11',
         command: 'sleep',

@@ -9,7 +9,7 @@ podTemplate(
         ),
         containerTemplate(
             name: 'openjdk',
-            image: 'openjdk:11',
+            image: 'eclipse-temurin:11',
             command: 'sleep',
             args: '99d',
             privileged: true

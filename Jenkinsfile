@@ -13,6 +13,13 @@ podTemplate(
             hostPath: '/var/run/docker.sock',
             mountPath: '/var/run/docker.sock'
         )
+    containerTemplate(
+        name: 'openjdk',
+        image: 'openjdk:11',
+        command: 'sleep',
+        args: '99d',
+        privileged: true
+    )
     ]
 ) {
     node(POD_LABEL) {
@@ -40,6 +47,19 @@ podTemplate(
 
                     sh "docker tag simple-python-flask:${env.IMAGE_TAG} 192.168.88.20:8082/simple-python-flask:${env.IMAGE_TAG}"
                 }
+            container('openjdk') {
+                stage('SonarQube Analysis') 
+                  script {
+                    def sonarScannerPath = tool 'SonarScanner'
+                    withSonarQubeEnv('SonarQube') {
+                        sh "${sonarScannerPath}/bin/sonar-scanner \
+                            -Dsonar.projectKey=courseCatalog \ 
+                            -Dsonar.sources=. \"                       
+
+
+
+                  }
+            }
 
                 stage('Push Image') {
                     withCredentials([usernamePassword(

@@ -52,8 +52,7 @@ podTemplate(
                   script {
                     def sonarScannerPath = tool 'SonarScanner'
                     withSonarQubeEnv('SonarQube') {
-                        sh "${sonarScannerPath}/bin/sonar-scanner \
-                            -Dsonar.projectKey=courseCatalog \ 
+                        sh "${sonarScannerPath}/bin/sonar-scanner -Dsonar.projectKey=courseCatalog \ 
                             -Dsonar.sources=. \"                       
 
 

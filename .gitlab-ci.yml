@@ -1,0 +1,19 @@
+image: docker:git 
+services:
+  - docker:dind
+
+stages:
+  - test
+  - build
+  - deploy
+
+test-app:
+  stage: test
+  image: python:3.9.10-slim-bullseye
+  services:
+    - name: docker:dind    
+  script:
+    - apt-get update && apt-get install -y python3-mysqldb libmariadb-dev gcc
+    - pip install -r requirements.txt
+    - nosetests --with-xunit --with-coverage --cover-package=project test_users.py
+  

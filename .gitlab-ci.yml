@@ -17,3 +17,22 @@ test-app:
     - pip install -r requirements.txt
     - nosetests --with-xunit --with-coverage --cover-package=project test_users.py
   
+build:
+  stage: build
+  dependencies:
+    - test-app
+  services:
+    - name: docker:dind
+
+  script:
+    - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
+    - docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} .
+    - docker push ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}
+
+
+include:
+  - template: Jobs/SAST.gitlab-ci.yml
+  
+spotbugs-sast:
+  variables:
+    FAIL_NEVER: 1

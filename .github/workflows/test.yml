@@ -1,6 +1,5 @@
 name: "CI/CD - Test"
 
-
 on:
   pull_request:
     branches:
@@ -13,32 +12,47 @@ jobs:
   test:
     name: "Teste de Aplicação"
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       issues: read
       checks: write
       pull-requests: write
+
     strategy:
       fail-fast: false
       matrix:
-        container: 
-          - "docker.io/python:3.9.10-slim-bullseye"
+        container:
+          - "python:3.9-slim"
+
     container:
       image: ${{ matrix.container }}
+
     steps:
-      - uses: actions/checkout@v4
-      - name: "Apt get"
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Apt get
         run: |
-          apt-get update && apt-get install -y python3-mysqldb libmariadb-dev gcc
-      - name: "Install dependencias"
+          for i in 1 2 3; do
+            apt-get update --fix-missing && \
+            apt-get install -y --no-install-recommends python3-mysqldb libmariadb-dev gcc && \
+            break
+            sleep 5
+          done
+
+      - name: Install dependencias
         run: |
+          pip install --upgrade pip
           pip install -r requirements.txt
-      - name: "Run tests"
+
+      - name: Run tests
         run: |
           nosetests --with-xunit --with-coverage --cover-package=project test_users.py
+
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
           files: |
-            *.xml*
+            *.xml

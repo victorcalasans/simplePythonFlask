@@ -32,7 +32,7 @@ jobs:
       - name: "Apt get"
         run: |
           apt-get update && apt-get install -y python3-mysqldb libmariadb-dev gcc
-      - name: "Install dependencies"
+      - name: "Install dependencias"
         run: |
           pip install -r requirements.txt
       - name: "Run tests"

@@ -25,6 +25,7 @@ jobs:
           - "docker.io/python:3.12.1-bullseye"
           - "docker.io/python:3.11.9-bullseye"
           - "docker.io/python:3.10.14-bullseye"
+          - "docker.io/python:3.9.16-bullseye"
     container:
       image: ${{ matrix.container }}
     steps:

@@ -8,6 +8,7 @@ metadata:
   labels:
     io.kompose.service: web
   name: web
+  namespace: homolog
 spec:
   ports:
     - name: "5000"
@@ -17,3 +18,4 @@ spec:
     io.kompose.service: web
 status:
   loadBalancer: {}
+  
